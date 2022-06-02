@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>standalone</artifactId>
+        <groupId>io.github.nunumao</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>standalone-boot</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.nunumao</groupId>
+            <artifactId>standalone-security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.nunumao</groupId>
+            <artifactId>standalone-system-app</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>${proguard.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${proguard.skip}</skip>
+                    <proguardVersion>${proguard.version}</proguardVersion>
+                    <injar>${project.build.finalName}.jar</injar>
+                    <outjar>${project.build.finalName}.jar</outjar>
+                    <obfuscate>true</obfuscate>
+                    <options>
+                        <!--  ##默认是开启的，这里关闭shrink，即不删除没有使用的类/成员-->
+                        <option>-dontshrink</option>
+                        <!-- ##默认是开启的，这里关闭字节码级别的优化-->
+                        <option>-dontoptimize</option>
+                        <!--##对于类成员的命名的混淆采取唯一策略-->
+                        <option>-useuniqueclassmembernames</option>
+                        <!--- 混淆类名之后，对使用Class.forName('className')之类的地方进行相应替代-->
+                        <option>-adaptclassstrings</option>
+                        <!--  忽略警告 -->
+                        <option>-ignorewarnings</option>
+                        <!-- 混淆时不生成大小写混合的类名，默认是可以大小写混合-->
+                        <option>-dontusemixedcaseclassnames</option>
+                        <!-- This option will replace all strings in reflections method invocations with new class names.
+                             For example, invokes Class.forName('className')-->
+                        <!-- <option>-adaptclassstrings</option> -->
+                        <!-- This option will save all original annotations and etc. Otherwise all we be removed from files.-->
+                        <!-- 不混淆所有特殊的类-->
+                        <option>-keepattributes Exceptions,InnerClasses,Signature,Deprecated,
+                            SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
+                        </option>
+                        <!-- This option will save all original names in interfaces (without obfuscate).-->
+                        <option>-keepnames interface **</option>
+                        <!-- This option will save all original methods parameters in files defined in -keep sections,
+                             otherwise all parameter names will be obfuscate.-->
+                        <option>-keepparameternames</option>
+                        <!-- 保持目录结构-->
+                        <option>-keepdirectories</option>
+
+                        <option>-keep class * implements java.io.Serializable</option>
+
+                        <option>-keep interface * extends * { *; }</option>
+
+                        <!-- 排除所有public class 和 method-->
+<!--                        <option>-keep public class * { public protected *; }</option>-->
+                        <!-- <option>-keep @org.springframework.stereotype.Service class *</option> -->
+                        <!-- This option will save all original defined annotations in all class in all packages.-->
+
+                        <option>-keepclassmembers class * {
+                            @org.springframework.context.annotation.Bean *;
+                            @org.springframework.beans.factory.annotation.Autowired *;
+                            @org.springframework.beans.factory.annotation.Value *;
+                            }
+
+                        </option>
+
+                        <!--                        <option>-dontwarn javax.**</option>-->
+                        <!--                        <option>-dontnote javax.**</option>-->
+
+                    </options>
+                    <injarNotExistsSkip>true</injarNotExistsSkip>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                        <lib>${java.home}/lib/jsse.jar</lib>
+                    </libs>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.guardsquare</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>${proguard.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
